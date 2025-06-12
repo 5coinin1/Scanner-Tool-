@@ -201,7 +201,19 @@ main() {
             exit 0
             ;;
         "--help"|"-h")
-            show_help
+            # Forward to Python help if it's a scan help request
+            if [ "$#" -eq 1 ]; then
+                show_help
+            else
+                # Forward to main.py for detailed scan help
+                shift
+                python3 main.py --help "$@"
+            fi
+            exit 0
+            ;;
+        "help")
+            # Show scan help from main.py
+            python3 main.py --help
             exit 0
             ;;
         "")
@@ -385,6 +397,7 @@ show_help() {
     echo "  $0 remove-caps             # Remove capabilities"
     echo "  $0 traceroute <target>     # Run traceroute"
     echo "  $0 demo                    # Show tutorial/examples"
+    echo "  $0 help                    # Show detailed scan options"
     echo "  $0 <target> <args>         # Direct CLI scan"
     echo
     echo "Setup:"
@@ -397,6 +410,9 @@ show_help() {
     echo "  $0 traceroute google.com      # Trace route to target"
     echo "  $0 demo                       # Show tutorial and examples"
     echo "  $0 setup                      # Setup passwordless scanning"
+    echo
+    echo "For detailed scan options and parameters:"
+    echo "  $0 help                       # Show complete scan help"
 }
 
 # Check dependencies
