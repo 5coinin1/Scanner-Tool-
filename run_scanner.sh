@@ -362,14 +362,14 @@ run_demo() {
     check_dependencies || exit 1
     
     # Check if demo.py exists
-    if [ ! -f "demo.py" ]; then
+    if [ ! -f "utils/demo.py" ]; then
         print_error "demo.py not found"
         print_info "Please ensure demo.py is in the current directory"
         return 1
     fi
     
     print_status "Starting SuperSimpleScanner Interactive Demo..."
-    python3 demo.py
+    python3 utils/demo.py
 }
 
 # Show help
