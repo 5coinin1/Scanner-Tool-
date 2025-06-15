@@ -1,6 +1,3 @@
-"""
-Scan Options Layout Components
-"""
 import os
 from PyQt5.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QGroupBox, 
@@ -9,10 +6,7 @@ from PyQt5.QtWidgets import (
 
 from gui.components.collapsible_box import CollapsibleBox
 
-
 class ScanOptionsWidget(QWidget):
-    """Widget containing all scan options"""
-    
     def __init__(self, has_root=False, parent=None):
         super().__init__(parent)
         self.has_root = has_root
@@ -21,23 +15,17 @@ class ScanOptionsWidget(QWidget):
     def init_ui(self):
         layout = QVBoxLayout(self)
         
-        # Basic Scan Types
         layout.addWidget(self._create_basic_scan_group())
         
-        # Advanced Scan Types  
         layout.addWidget(self._create_advanced_scan_group())
         
-        # Host Discovery
         layout.addWidget(self._create_host_discovery_group())
         
-        # Other Options
         layout.addWidget(self._create_other_options_group())
         
-        # Port Options
         layout.addLayout(self._create_port_options())
     
     def _create_basic_scan_group(self):
-        """Create basic scan types group"""
         basic_group = QGroupBox("Basic Scan Types")
         basic_layout = QHBoxLayout(basic_group)
         
@@ -47,13 +35,12 @@ class ScanOptionsWidget(QWidget):
         self.enhanced_udp_cb = QCheckBox("Enhanced UDP")
         self.advanced_tcp_cb = QCheckBox("Advanced TCP")
         
-        # Disable root-required features if not running as root
         if not self.has_root:
             self.syn_scan_cb.setEnabled(False)
             self.syn_scan_cb.setToolTip("Requires root privileges")
-            self.tcp_connect_cb.setChecked(True)  # Default to TCP Connect if no root
+            self.tcp_connect_cb.setChecked(True)
         else:
-            self.syn_scan_cb.setChecked(True)  # Default to SYN if root
+            self.syn_scan_cb.setChecked(True)
         
         basic_layout.addWidget(self.syn_scan_cb)
         basic_layout.addWidget(self.tcp_connect_cb)
@@ -64,11 +51,9 @@ class ScanOptionsWidget(QWidget):
         return basic_group
     
     def _create_advanced_scan_group(self):
-        """Create advanced scan types group"""
         advanced_group = QGroupBox("Advanced Scan Types")
         advanced_layout = QVBoxLayout(advanced_group)
         
-        # Main advanced scan row
         main_advanced_row = QHBoxLayout()
         
         self.parallel_cb = QCheckBox("Parallel Scan (--parallel)")
@@ -85,7 +70,6 @@ class ScanOptionsWidget(QWidget):
         main_advanced_row.addWidget(self.adaptive_cb)
         advanced_layout.addLayout(main_advanced_row)
         
-        # Advanced options info
         info_layout = QHBoxLayout()
         info_label = QLabel("💡 Combine with timing templates: Parallel+T4 (fast), Stealth+T1 (covert), Adaptive+T3 (balanced)")
         info_label.setStyleSheet("color: #666; font-size: 9px; font-style: italic;")
@@ -96,18 +80,15 @@ class ScanOptionsWidget(QWidget):
         return advanced_group
     
     def _create_host_discovery_group(self):
-        """Create host discovery group with collapsible details"""
         discovery_group = QGroupBox("Host Discovery")
         discovery_layout = QVBoxLayout(discovery_group)
         
-        # Main discovery row with most important options
         main_discovery_row = QHBoxLayout()
         self.host_discovery_cb = QCheckBox("Host Discovery (-sn)")
         self.comprehensive_icmp_cb = QCheckBox("Comprehensive ICMP (-PC)")
         self.advanced_discovery_cb = QCheckBox("Advanced Discovery (-PA)")
         self.arp_ping_cb = QCheckBox("ARP Ping (-PR)")
         
-        # Disable comprehensive ICMP if not root
         if not self.has_root:
             self.comprehensive_icmp_cb.setEnabled(False)
             self.comprehensive_icmp_cb.setToolTip("Requires root privileges")
@@ -119,18 +100,15 @@ class ScanOptionsWidget(QWidget):
         
         discovery_layout.addLayout(main_discovery_row)
         
-        # Collapsible section for detailed ICMP options
         icmp_detail_box = CollapsibleBox("Individual ICMP Methods (included in -PC)")
         icmp_detail_layout = QVBoxLayout()
         
-        # Individual ICMP methods
         icmp_row1 = QHBoxLayout()
         self.icmp_echo_cb = QCheckBox("ICMP Echo (-PE)")
         self.icmp_timestamp_cb = QCheckBox("ICMP Timestamp (-PP)")
         self.icmp_address_mask_cb = QCheckBox("ICMP Addr Mask (-PM)")
         self.icmp_info_cb = QCheckBox("ICMP Info (-PI)")
         
-        # Disable individual ICMP methods if not root
         if not self.has_root:
             for cb in [self.icmp_echo_cb, self.icmp_timestamp_cb, self.icmp_address_mask_cb, self.icmp_info_cb]:
                 cb.setEnabled(False)
@@ -141,13 +119,11 @@ class ScanOptionsWidget(QWidget):
         icmp_row1.addWidget(self.icmp_address_mask_cb)
         icmp_row1.addWidget(self.icmp_info_cb)
         
-        # TCP/UDP ping methods
         ping_row2 = QHBoxLayout()
         self.tcp_syn_ping_cb = QCheckBox("TCP SYN Ping (-PS)")
         self.enhanced_tcp_syn_cb = QCheckBox("Enhanced TCP SYN (-PSE)")
         self.udp_ping_cb = QCheckBox("UDP Ping (-PU)")
         
-        # Disable TCP SYN ping if not root
         if not self.has_root:
             self.tcp_syn_ping_cb.setEnabled(False)
             self.tcp_syn_ping_cb.setToolTip("Requires root privileges")
@@ -157,7 +133,7 @@ class ScanOptionsWidget(QWidget):
         ping_row2.addWidget(self.tcp_syn_ping_cb)
         ping_row2.addWidget(self.enhanced_tcp_syn_cb)
         ping_row2.addWidget(self.udp_ping_cb)
-        ping_row2.addStretch()  # Add stretch to fill space
+        ping_row2.addStretch()
         
         icmp_detail_layout.addLayout(icmp_row1)
         icmp_detail_layout.addLayout(ping_row2)
@@ -168,7 +144,6 @@ class ScanOptionsWidget(QWidget):
         return discovery_group
     
     def _create_other_options_group(self):
-        """Create other options group"""
         from src.timing import TIMING_TEMPLATES
         
         other_group = QGroupBox("Other Options")
@@ -176,12 +151,10 @@ class ScanOptionsWidget(QWidget):
         
         self.os_detection_cb = QCheckBox("OS Detection (-O)")
         
-        # Disable OS detection if not root
         if not self.has_root:
             self.os_detection_cb.setEnabled(False)
             self.os_detection_cb.setToolTip("Requires root privileges for raw packet analysis")
         
-        # Timing Template
         other_layout.addWidget(QLabel("Timing:"))
         self.timing_combo = QComboBox()
         self.timing_combo.addItems(list(TIMING_TEMPLATES.keys()))
@@ -189,14 +162,12 @@ class ScanOptionsWidget(QWidget):
         self.timing_combo.currentTextChanged.connect(self._update_timing_info)
         other_layout.addWidget(self.timing_combo)
         
-        # Timing info label
         self.timing_info_label = QLabel()
         self._update_timing_info("normal")
         other_layout.addWidget(self.timing_info_label)
         
         other_layout.addWidget(self.os_detection_cb)
         
-        # Add privilege status indicator
         if not self.has_root:
             privilege_label = QLabel("⚠️ Limited Mode (No Root)")
             privilege_label.setStyleSheet("color: orange; font-weight: bold;")
@@ -210,7 +181,6 @@ class ScanOptionsWidget(QWidget):
         return other_group
     
     def _create_port_options(self):
-        """Create port options layout"""
         port_layout = QHBoxLayout()
         port_layout.addWidget(QLabel("Ports:"))
         
@@ -225,10 +195,8 @@ class ScanOptionsWidget(QWidget):
         return port_layout
     
     def get_scan_types(self):
-        """Get selected scan types"""
         scan_types = []
         
-        # Basic scan types
         if self.syn_scan_cb.isChecked():
             scan_types.append('syn_scan')
         if self.tcp_connect_cb.isChecked():
@@ -240,7 +208,6 @@ class ScanOptionsWidget(QWidget):
         if self.advanced_tcp_cb.isChecked():
             scan_types.append('advanced_tcp')
             
-        # Advanced scan types
         if self.parallel_cb.isChecked():
             scan_types.append('parallel')
         if self.stealth_cb.isChecked():
@@ -248,7 +215,6 @@ class ScanOptionsWidget(QWidget):
         if self.adaptive_cb.isChecked():
             scan_types.append('adaptive')
             
-        # Host discovery
         if self.host_discovery_cb.isChecked():
             scan_types.append('host_discovery')
         if self.icmp_echo_cb.isChecked():
@@ -275,7 +241,6 @@ class ScanOptionsWidget(QWidget):
         return scan_types
     
     def _update_timing_info(self, timing_name):
-        """Update timing information display"""
         from src.timing import TIMING_TEMPLATES
         
         config = TIMING_TEMPLATES.get(timing_name, TIMING_TEMPLATES["normal"])

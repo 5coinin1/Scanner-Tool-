@@ -11,11 +11,10 @@ from src.host_discovery import (
     advanced_host_discovery, icmp_timestamp_ping, icmp_address_mask_ping,
     icmp_info_ping, comprehensive_icmp_ping, enhanced_tcp_syn_ping
 )
-from src.os_detection import advanced_os_detection, quick_os_detection
+from src.os_detection import advanced_os_detection
 from utils.scan_order import parse_ports, get_common_ports, format_port_list
 
 def validate_ping_options(args):
-    """Validate ping option combinations"""
     ping_options = [args.PE, args.PP, args.PM, args.PI, args.PC, args.PS, args.PSE, 
                     args.PU, args.PR, args.PA, args.sn]
     
@@ -25,16 +24,10 @@ def validate_ping_options(args):
         print("[!] Warning: Multiple ping options selected. Only the first one will be executed.")
         print("    Consider using -PA for comprehensive discovery or -PC for all ICMP types.")
         return False
-    
 
-    
     return True
 
-
 def validate_scan_options(args):
-    """Validate scan option combinations and parameters"""
-    
-    # Validate timing template
     if hasattr(args, 'timing') and args.timing not in TIMING_TEMPLATES:
         print(f"[!] Invalid timing template: {args.timing}")
         print(f"    Available: {', '.join(TIMING_TEMPLATES.keys())}")
@@ -42,25 +35,21 @@ def validate_scan_options(args):
 
     return True
 
-
 def main():
     parser = argparse.ArgumentParser(
         description="My Super Simple Network Scanner"
     )
 
-    # Basic Scan Types
     parser.add_argument("-sS", action="store_true", help="SYN scan (stealth, requires root)")
     parser.add_argument("-sT", action="store_true", help="TCP Connect scan (reliable, no root needed)")
     parser.add_argument("-sU", action="store_true", help="UDP scan (with service detection)")
     parser.add_argument("-sn", action="store_true", help="Host discovery (no port scan)")
     
-    # Advanced Scan Types
     parser.add_argument("--parallel", action="store_true", help="Parallel scanning with configurable timing")
     parser.add_argument("--stealth", action="store_true", help="Stealth scan with evasion techniques") 
     parser.add_argument("--adaptive", action="store_true", help="Adaptive scan (auto-adjusts to network)")
     parser.add_argument("--advanced-tcp", action="store_true", help="Advanced TCP Connect with full handshake")
     parser.add_argument("--enhanced-udp", action="store_true", help="Enhanced UDP scan with multiple attempts")
-    # Enhanced Ping Options
     parser.add_argument("-PE", action="store_true", help="ICMP Echo Ping (enhanced with RTT measurement)")
     parser.add_argument("-PP", action="store_true", help="ICMP Timestamp Ping (alternative when Echo blocked)")
     parser.add_argument("-PM", action="store_true", help="ICMP Address Mask Ping (stealth option)")
@@ -73,11 +62,9 @@ def main():
     parser.add_argument("-PR", action="store_true", help="ARP Ping (for local network discovery)")
     parser.add_argument("-PA", action="store_true", help="Advanced host discovery (combine all methods)")
     
-    # Timing Options
     parser.add_argument("-T", type=int, choices=range(6), help="Timing template (0=paranoid, 1=sneaky, 2=polite, 3=normal, 4=aggressive, 5=insane)")
     parser.add_argument("--timing", choices=list(TIMING_TEMPLATES.keys()), default="normal", help="Named timing template")
     
-    # OS Detection
     parser.add_argument("-O", action="store_true", help="Enable OS detection")
     
     parser.add_argument("-p", "--ports", type=str, 
@@ -89,14 +76,10 @@ def main():
 
     args = parser.parse_args()
 
-
-
-    # Convert -T to timing template
     if args.T is not None:
         timing_names = ["paranoid", "sneaky", "polite", "normal", "aggressive", "insane"]
         args.timing = timing_names[args.T]
     
-    # Display timing information
     timing_config = TIMING_TEMPLATES[args.timing]
     print(f"[*] Timing template: {args.timing}")
     print(f"    - Delay: {timing_config['delay']}s")
@@ -104,31 +87,25 @@ def main():
     print(f"    - Max threads: {timing_config['max_threads']}")
     print()
 
-    # Validate options
     if not validate_ping_options(args):
         return
         
     if not validate_scan_options(args):
         return
 
-    # Handle conflicting arguments
     if args.sn and args.ports is not None:
         print("[!] Invalid argument: -sn (no port scan) cannot be used with -p (ports).")
         return
         
-    # Advanced scan types need ports
     advanced_scans = [args.parallel, args.stealth, args.adaptive, args.advanced_tcp, args.enhanced_udp]
     if any(advanced_scans) and not (args.sS or args.sT or args.sU):
         print("[!] Advanced scan options require a basic scan type (-sS, -sT, or -sU)")
         return
 
-
-    # Get timing configuration for ping operations
     timing_config = TIMING_TEMPLATES[args.timing]
     ping_timeout = timing_config['timeout']
-    ping_count = timing_config.get('retries', 1) + 2  # Base count based on timing
+    ping_count = timing_config.get('retries', 1) + 2
     
-    # Enhanced ICMP Ping options
     if args.PE:
         icmp_echo_ping(args.target, count=ping_count, timeout=ping_timeout)
         return
@@ -165,9 +142,7 @@ def main():
         no_port_scan(args.target, timeout=ping_timeout)
         return
     
-    # Parse port specification
     if args.ports is None:
-        # Use common ports if no specific ports specified
         tcp_ports = get_common_ports("top100")
         udp_ports = get_common_ports("common-udp")
         print(f"[*] Using default ports: {len(tcp_ports)} TCP, {len(udp_ports)} UDP")
@@ -176,7 +151,6 @@ def main():
             tcp_ports, udp_ports = parse_ports(args.ports)
             print(f"[*] Parsed ports: {len(tcp_ports)} TCP, {len(udp_ports)} UDP")
             
-            # Show warnings for large scans
             total_ports = len(tcp_ports) + len(udp_ports)
             if total_ports > 5000:
                 print(f"[!] Warning: Scanning {total_ports} ports will take a very long time")
@@ -189,7 +163,6 @@ def main():
             print("    Examples: 80,443,22  or  web,mail  or  T:80-443,U:53")
             return
 
-    # Validate that we have ports to scan for port scanning operations
     scan_needs_ports = any([args.sS, args.sT, args.sU, args.parallel, args.stealth, 
                            args.adaptive, args.advanced_tcp, args.enhanced_udp])
     
@@ -197,7 +170,6 @@ def main():
         print("[!] No valid ports specified for scanning")
         print("    Use -p to specify ports, or use host discovery options (-sn, -PE, etc.)")
         return
-
 
     scan_types = [args.sS, args.sT, args.sU, args.sn, args.PS, args.PSE, args.PU, args.PR, args.PA,
                   args.PE, args.PP, args.PM, args.PI, args.PC, args.parallel, args.stealth, 
@@ -216,11 +188,9 @@ def main():
         print("      --timing: Named template (paranoid, sneaky, polite, normal, aggressive, insane)")
         print()
         print("    Port examples: -p 80,443,22  -p web,mail  -p T:80-443,U:53  -p top100")
-        print("    For detailed examples and tutorials, run: python3 demo.py")
+        print("    For detailed examples and tutorials, run: ./run_scanner.sh demo")
         exit()
 
-    
-    # Handle enhanced UDP scan
     if args.enhanced_udp:
         print(f"[+] Starting Enhanced UDP scan on {args.target}")
         for port in udp_ports:
@@ -248,8 +218,6 @@ def main():
         enhanced_tcp_syn_ping(args.target, ports=tcp_ports, timeout=ping_timeout)
         return
 
-
-    # Handle advanced scanning options
     if args.parallel:
         scan_type = "syn" if args.sS else "connect" if args.sT else "udp"
         ports = tcp_ports if scan_type in ["syn", "connect"] else udp_ports
@@ -273,7 +241,6 @@ def main():
             advanced_tcp_connect_scan(args.target, port, timing=args.timing, verbose=True)
         return
 
-    # Standard scanning with timing support
     if args.sT:
         print(f"[+] Starting TCP connect scan on {args.target}")
         for port in tcp_ports:
@@ -284,7 +251,6 @@ def main():
         for port in tcp_ports:
             syn_scan(args.target, port, timing=args.timing, verbose=True)
 
-    # OS Detection
     if args.O:
         print(f"[+] Starting OS detection on {args.target}")
         try:
@@ -300,7 +266,6 @@ def main():
                 print(f"TCP Options: {', '.join(os_result['details']['tcp_options'])}")
         except Exception as e:
             print(f"[!] OS detection failed: {e}")
-
 
 if __name__=="__main__":
     main()

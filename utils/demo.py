@@ -1,33 +1,24 @@
 #!/usr/bin/env python3
-"""
-SuperSimpleScanner Demo Guide
-Quick reference and examples
-"""
 
 import os
 import sys
 from colorama import init, Fore, Style
 
-# Initialize colorama
 init(autoreset=True)
 
 def print_header(title):
-    """Print formatted header"""
     print(f"\n{Fore.CYAN}{'=' * 50}")
     print(f"{Fore.CYAN}{title:^50}")
     print(f"{Fore.CYAN}{'=' * 50}{Style.RESET_ALL}")
 
 def print_example(cmd, desc):
-    """Print command example"""
     print(f"{Fore.GREEN}• {desc}{Style.RESET_ALL}")
     print(f"  {Fore.WHITE}{cmd}{Style.RESET_ALL}")
 
 def print_info(text):
-    """Print info text"""
     print(f"{Fore.BLUE}ℹ {text}{Style.RESET_ALL}")
 
 def show_basic_scanning():
-    """Show basic scanning examples"""
     print_header("BASIC PORT SCANNING")
     print_info("Fundamental port scanning techniques")
     
@@ -37,7 +28,6 @@ def show_basic_scanning():
     print_example("./run_scanner.sh 127.0.0.1 -T4", "Fast aggressive scan")
 
 def show_advanced_scanning():
-    """Show advanced scanning examples"""
     print_header("ADVANCED SCANNING")
     print_info("Advanced techniques (some require capabilities/sudo)")
     
@@ -47,7 +37,6 @@ def show_advanced_scanning():
     print_example("./run_scanner.sh 127.0.0.1 --os-scan", "OS detection")
 
 def show_host_discovery():
-    """Show host discovery examples"""
     print_header("HOST DISCOVERY")
     print_info("Find live hosts before port scanning")
     
@@ -55,7 +44,6 @@ def show_host_discovery():
     print_example("./run_scanner.sh 127.0.0.1 --icmp-ping", "ICMP ping test")
 
 def show_timing_templates():
-    """Show timing template examples"""
     print_header("TIMING TEMPLATES")
     print_info("Control scan speed: T0=Paranoid T1=Sneaky T2=Polite T3=Normal T4=Aggressive T5=Insane")
     
@@ -64,7 +52,6 @@ def show_timing_templates():
     print_example("./run_scanner.sh target -T4", "Aggressive (fast)")
 
 def show_traceroute():
-    """Show traceroute examples"""
     print_header("TRACEROUTE")
     print_info("Network path tracing and topology mapping")
     
@@ -72,7 +59,6 @@ def show_traceroute():
     print_example("./run_scanner.sh trace 8.8.8.8 --method icmp", "ICMP traceroute")
 
 def show_gui_features():
-    """Show GUI information"""
     print_header("GUI FEATURES")
     print_info("Graphical interface with visual controls")
     
@@ -85,7 +71,6 @@ def show_gui_features():
     print("  • Timing template selection")
 
 def show_setup():
-    """Show setup examples"""
     print_header("SETUP & CONFIGURATION")
     print_info("Setup capabilities for passwordless privileged scans")
     
@@ -94,7 +79,6 @@ def show_setup():
     print_example("./run_scanner.sh remove-caps", "Remove capabilities")
 
 def show_practical_examples():
-    """Show practical real-world examples"""
     print_header("PRACTICAL EXAMPLES")
     print_info("Real-world scanning scenarios")
     
@@ -113,11 +97,9 @@ def show_practical_examples():
     print(f"\n{Fore.YELLOW}⚠ Replace targets with your own! Get permission first!{Style.RESET_ALL}")
 
 def main():
-    """Main demo function - shows all sections"""
     print_header("SUPERSIMPLESCANNER GUIDE")
     print_info("Quick reference and command examples")
     
-    # Show all sections
     show_basic_scanning()
     show_advanced_scanning() 
     show_host_discovery()
@@ -136,7 +118,6 @@ def main():
 
 if __name__ == "__main__":
     try:
-        # Check if we're in the right directory
         if not os.path.exists("run_scanner.sh"):
             print(f"{Fore.RED}Error: run_scanner.sh not found{Style.RESET_ALL}")
             print(f"{Fore.YELLOW}Please run this demo from the SuperSimpleScanner directory{Style.RESET_ALL}")

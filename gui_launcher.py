@@ -6,17 +6,13 @@ import subprocess
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
 def check_root_privileges():
-    """Check if the script is running with root privileges"""
     return os.geteuid() == 0
 
 def restart_with_sudo():
-    """Restart the application with sudo privileges"""
     try:
-        # Get the current script path
         script_path = os.path.abspath(__file__)
         python_path = sys.executable
         
-        # Restart with sudo
         subprocess.run(['sudo', python_path, script_path], check=True)
         return True
     except subprocess.CalledProcessError:
@@ -25,7 +21,6 @@ def restart_with_sudo():
         return False
 
 def show_privilege_dialog():
-    """Show dialog asking user about privilege escalation"""
     app = QApplication(sys.argv)
     
     msg = QMessageBox()
@@ -56,16 +51,13 @@ def show_privilege_dialog():
     return choice == QMessageBox.Yes
 
 def main():
-    # Add the project root to the Python path
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
     
-    # Check if running as root
     if not check_root_privileges():
         print("[!] Warning: Not running as root")
         print("    Some scan types will be unavailable (SYN scan, ICMP ping, OS detection)")
         print("    Run with 'sudo python3 gui_launcher.py' for full functionality")
         
-        # Show GUI dialog if not in terminal mode
         if 'DISPLAY' in os.environ:
             try:
                 if show_privilege_dialog():
@@ -84,7 +76,6 @@ def main():
     else:
         print("[+] Running with root privileges - all features available")
     
-    # Import and run the GUI
     try:
         from gui.scanner_gui import main as gui_main
         gui_main()
