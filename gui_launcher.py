@@ -5,6 +5,13 @@ import os
 import subprocess
 from PyQt5.QtWidgets import QApplication, QMessageBox
 
+if not os.environ.get('XDG_RUNTIME_DIR'):
+    os.environ['XDG_RUNTIME_DIR'] = '/tmp/runtime-' + str(os.getuid())
+
+os.environ['QT_QPA_PLATFORM'] = 'xcb'
+os.environ['XDG_SESSION_TYPE'] = 'x11'
+os.environ['SESSION_MANAGER'] = ''
+
 def check_root_privileges():
     return os.geteuid() == 0
 
